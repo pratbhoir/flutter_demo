@@ -384,8 +384,12 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _widgetOptions = <Widget>[
-    HomeScreen(),
+  // GlobalKey for controlling the Scaffold
+  final GlobalKey<ScaffoldState> _mainScreenKey = GlobalKey<ScaffoldState>();
+
+  // Define the widget options and pass the scaffoldKey to HomeScreen
+  static List<Widget> _widgetOptions(GlobalKey<ScaffoldState> mainScreenKey) => <Widget>[
+    HomeScreen(mainScreenKey: mainScreenKey), // Pass the scaffold key to HomeScreen
     MessagesScreen(),
     ActivityScreen(),
     ProfileScreen(),
@@ -400,10 +404,9 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // drawer: const AppDrawer(),
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
-      ),
+      key: _mainScreenKey, // Assign the global key to the scaffold
+      drawer: const AppDrawer(), // AppDrawer
+      body: _widgetOptions(_mainScreenKey)[_selectedIndex], // Show the appropriate screen
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(LucideIcons.house), label: 'Home'),
@@ -423,9 +426,11 @@ class _MainScreenState extends State<MainScreen> {
 }
 
 
-// 7. Home Screen
+// Home Screen
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  final GlobalKey<ScaffoldState> mainScreenKey;
+
+  const HomeScreen({super.key, required this.mainScreenKey}); // Pass the scaffold key
 
   void _showToast(BuildContext context, String message) {
     final snackBar = SnackBar(
@@ -447,13 +452,15 @@ class HomeScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      drawer: const AppDrawer(),
       appBar: AppBar(
         leading: Builder(
           builder: (context) => Padding(
             padding: const EdgeInsets.all(8.0),
             child: GestureDetector(
-              onTap: () => Scaffold.of(context).openDrawer(),
+              onTap: () {
+                // Open the drawer using the global scaffold key
+                mainScreenKey.currentState?.openDrawer();
+              },
               child: Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
