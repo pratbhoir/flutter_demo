@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
 import 'dart:async';
+import 'package:flutter/gestures.dart';
+
 
 void main() {
   runApp(const MatrimonyApp());
@@ -32,6 +34,8 @@ class MatrimonyApp extends StatelessWidget {
       home: const SplashScreen(),
       routes: {
         '/login': (context) => const LoginScreen(),
+        '/signup': (context) => const SignUpScreen(),
+        '/forgot-password': (context) => const ForgotPasswordScreen(),
         '/home': (context) => const MainScreen(),
         '/profile': (context) => const ProfileScreen(),
         '/edit-profile': (context) => const EditProfileHubScreen(),
@@ -41,6 +45,7 @@ class MatrimonyApp extends StatelessWidget {
         '/activity': (context) => const ActivityScreen(),
         '/notifications': (context) => const NotificationsScreen(),
         '/settings': (context) => const SettingsScreen(),
+        '/help': (context) => const HelpScreen(),
         '/premium': (context) => const PremiumScreen(),
       },
     );
@@ -145,7 +150,7 @@ class LoginScreen extends StatelessWidget {
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: () => Navigator.pushNamed(context, '/forgot-password'),
                   child: const Text('Forgot Password?', style: TextStyle(color: Color(0xFFD32F2F))),
                 ),
               ),
@@ -166,7 +171,7 @@ class LoginScreen extends StatelessWidget {
                 children: [
                   const Text("New to Agri Lagna? "),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () => Navigator.pushNamed(context, '/signup'),
                     child: const Text('Sign Up', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFD32F2F))),
                   ),
                 ],
@@ -174,6 +179,127 @@ class LoginScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+// 3. Sign Up Screen
+class SignUpScreen extends StatelessWidget {
+  const SignUpScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Create Account', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.white,
+        elevation: 1,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            _buildTextField(label: 'Full Name'),
+            _buildTextField(label: 'Phone Number', keyboardType: TextInputType.phone),
+            _buildTextField(label: 'Password', obscureText: true),
+            _buildTextField(label: 'Date of Birth', isDatePicker: true, context: context),
+            _buildTextField(label: 'Religion'),
+            _buildTextField(label: 'Caste'),
+            _buildTextField(label: 'Occupation'),
+            _buildTextField(label: 'Highest Education'),
+            _buildTextField(label: 'Location'),
+          ],
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ElevatedButton(
+          onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Theme.of(context).primaryColor,
+            foregroundColor: Colors.white,
+            minimumSize: const Size(double.infinity, 50),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+          child: const Text('Continue', style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({required String label, TextInputType? keyboardType, bool obscureText = false, bool isDatePicker = false, BuildContext? context}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20.0),
+      child: TextFormField(
+        obscureText: obscureText,
+        keyboardType: keyboardType,
+        readOnly: isDatePicker,
+        onTap: isDatePicker && context != null ? () async {
+          await showDatePicker(
+            context: context,
+            initialDate: DateTime.now(),
+            firstDate: DateTime(1950),
+            lastDate: DateTime.now(),
+          );
+        } : null,
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      ),
+    );
+  }
+}
+
+
+// 4. Forgot Password Screen
+class ForgotPasswordScreen extends StatelessWidget {
+  const ForgotPasswordScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Forgot Password', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.white,
+        elevation: 1,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Enter your registered phone number to receive a reset code.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey),
+            ),
+            const SizedBox(height: 24),
+            _buildTextField(label: 'Phone Number', keyboardType: TextInputType.phone),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).primaryColor,
+                foregroundColor: Colors.white,
+                minimumSize: const Size(double.infinity, 50),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              child: const Text('Send Reset Code', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({required String label, TextInputType? keyboardType}) {
+    return TextFormField(
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }
@@ -232,6 +358,17 @@ class _MainScreenState extends State<MainScreen> {
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
+  void _showToast(BuildContext context, String message) {
+    final snackBar = SnackBar(
+      content: Text(message, style: const TextStyle(fontWeight: FontWeight.bold)),
+      backgroundColor: Colors.black87,
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<Map<String, String>> matchProfiles = [
@@ -241,15 +378,22 @@ class HomeScreen extends StatelessWidget {
     ];
 
     return Scaffold(
+      drawer: const AppDrawer(),
       appBar: AppBar(
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: GestureDetector(
-            onTap: () {
-              // Open Drawer
-            },
-            child: const CircleAvatar(
-              backgroundImage: NetworkImage('https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1887&auto=format&fit=crop'),
+        leading: Builder(
+          builder: (context) => Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: GestureDetector(
+              onTap: () => Scaffold.of(context).openDrawer(),
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0xFFD32F2F), width: 2),
+                ),
+                child: const CircleAvatar(
+                  backgroundImage: NetworkImage('https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1887&auto=format&fit=crop'),
+                ),
+              ),
             ),
           ),
         ),
@@ -274,6 +418,12 @@ class HomeScreen extends StatelessWidget {
             name: profile['name']!,
             details: profile['details']!,
             imageUrl: profile['image']!,
+            onInterest: () => _showToast(context, 'Interest Sent!'),
+            onShortlist: () => _showToast(context, 'Profile Shortlisted!'),
+            onChat: () {
+              _showToast(context, 'Opening Chat...');
+              Navigator.pushNamed(context, '/chat');
+            },
           );
         },
       ),
@@ -285,12 +435,18 @@ class MatchCard extends StatelessWidget {
   final String name;
   final String details;
   final String imageUrl;
+  final VoidCallback onInterest;
+  final VoidCallback onShortlist;
+  final VoidCallback onChat;
 
   const MatchCard({
     super.key,
     required this.name,
     required this.details,
     required this.imageUrl,
+    required this.onInterest,
+    required this.onShortlist,
+    required this.onChat,
   });
 
   @override
@@ -352,12 +508,12 @@ class MatchCard extends StatelessWidget {
                     color: Colors.black.withOpacity(0.4),
                     borderRadius: BorderRadius.circular(30),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      ActionButton(icon: LucideIcons.heart, label: 'Interest', color: Colors.greenAccent),
-                      ActionButton(icon: LucideIcons.star, label: 'Shortlist', color: Colors.yellowAccent),
-                      ActionButton(icon: LucideIcons.messageCircle, label: 'Chat', color: Colors.blueAccent),
+                      ActionButton(icon: LucideIcons.heart, label: 'Interest', color: Colors.greenAccent, onPressed: onInterest),
+                      ActionButton(icon: LucideIcons.star, label: 'Shortlist', color: Colors.yellowAccent, onPressed: onShortlist),
+                      ActionButton(icon: LucideIcons.messageCircle, label: 'Chat', color: Colors.blueAccent, onPressed: onChat),
                     ],
                   ),
                 ),
@@ -374,26 +530,104 @@ class ActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
+  final VoidCallback onPressed;
 
   const ActionButton({
     super.key,
     required this.icon,
     required this.label,
     required this.color,
+    required this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Icon(icon, color: color, size: 24),
-        const SizedBox(height: 4),
-        Text(label, style: const TextStyle(color: Colors.white, fontSize: 12)),
-      ],
+    return GestureDetector(
+      onTap: onPressed,
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 24),
+          const SizedBox(height: 4),
+          Text(label, style: const TextStyle(color: Colors.white, fontSize: 12)),
+        ],
+      ),
     );
   }
 }
 
+
+// Side Menu (Drawer)
+class AppDrawer extends StatelessWidget {
+  const AppDrawer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          const DrawerHeader(
+            decoration: BoxDecoration(
+              color: Color(0xFFFFF0F0),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CircleAvatar(
+                  radius: 30,
+                  backgroundImage: NetworkImage('https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1887&auto=format&fit=crop'),
+                ),
+                SizedBox(height: 10),
+                Text('Priya Sharma', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
+                Text('ID: 12345', style: TextStyle(fontSize: 12, color: Colors.grey)),
+              ],
+            ),
+          ),
+          ListTile(
+            leading: const Icon(LucideIcons.gem, color: Colors.orange),
+            title: const Text('Upgrade to Premium'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/premium');
+            },
+          ),
+          ListTile(
+            leading: const Icon(LucideIcons.userCog),
+            title: const Text('Edit Profile'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/edit-profile');
+            },
+          ),
+          ListTile(
+            leading: const Icon(LucideIcons.settings),
+            title: const Text('Settings'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/settings');
+            },
+          ),
+          ListTile(
+            leading: const Icon(LucideIcons.circle),
+            title: const Text('Help & Support'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/help');
+            },
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(LucideIcons.logOut, color: Color(0xFFD32F2F)),
+            title: const Text('Logout'),
+            onTap: () {
+              Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 // 5. Profile Screen
 class ProfileScreen extends StatelessWidget {
@@ -401,6 +635,12 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final List<String> profileImages = [
+      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1887&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1964&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop'
+    ];
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -410,22 +650,11 @@ class ProfileScreen extends StatelessWidget {
             pinned: true,
             backgroundColor: const Color(0xFFFFF0F0),
             flexibleSpace: FlexibleSpaceBar(
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.network(
-                    'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1887&auto=format&fit=crop',
-                    fit: BoxFit.cover,
-                    color: Colors.white.withOpacity(0.5),
-                    colorBlendMode: BlendMode.dstATop,
-                  ),
-                  const Positioned(
-                    bottom: -1,
-                    left: 0,
-                    right: 0,
-                    child: SizedBox(height: 1),
-                  ),
-                ],
+              background: Image.network(
+                profileImages[0],
+                fit: BoxFit.cover,
+                color: Colors.white.withOpacity(0.5),
+                colorBlendMode: BlendMode.dstATop,
               ),
             ),
             bottom: PreferredSize(
@@ -435,18 +664,27 @@ class ProfileScreen extends StatelessWidget {
                 alignment: Alignment.center,
                 children: [
                   Positioned(
-                    top: -50,
-                    child: CircleAvatar(
-                      radius: 54,
-                      backgroundColor: Colors.white,
-                      child: CircleAvatar(
-                        radius: 50,
-                        backgroundImage: NetworkImage(
-                          'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1887&auto=format&fit=crop',
+                    top: 0,
+                    child: Container(
+                      color: Colors.blue.withOpacity(0.5), // To visualize bounds
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => ImageGalleryScreen(imageUrls: profileImages),
+                          ));
+                        },
+                        child: CircleAvatar(
+                          radius: 54,
+                          backgroundColor: Colors.white,
+                          child: CircleAvatar(
+                            radius: 50,
+                            backgroundColor: Colors.red,  // Just a placeholder color
+                          ),
                         ),
                       ),
                     ),
                   ),
+
                 ],
               ),
             ),
@@ -475,6 +713,19 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     child: const Text('Edit Profile'),
                   ),
+                  ElevatedButton(
+                    onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => ImageGalleryScreen(imageUrls: profileImages),
+                          ));
+                        },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFD32F2F),
+                      foregroundColor: Colors.white,
+                      shape: const StadiumBorder(),
+                    ),
+                    child: const Text('View Photos'),
+                  ),
                   const SizedBox(height: 24),
                   _buildProfileSection(
                     title: 'About Me',
@@ -491,12 +742,42 @@ class ProfileScreen extends StatelessWidget {
                     }),
                   ),
                   _buildProfileSection(
+                    title: 'Contact Details',
+                    content: _buildDetailGrid({
+                      'Email': "priya.s@email.com",
+                      'Phone': '9876543210',
+                    }),
+                  ),
+                   _buildProfileSection(
+                    title: 'Education & Career',
+                    content: _buildDetailGrid({
+                      'Highest Education': "M.Tech",
+                      'Employed In': 'Private Sector',
+                      'Occupation': 'Software Engineer',
+                      'Annual Income': '₹20 Lakhs+',
+                    }),
+                  ),
+                  _buildProfileSection(
                     title: 'Family Details',
                     content: _buildDetailGrid({
                       "Father's Occupation": 'Businessman',
                       "Mother's Occupation": 'Homemaker',
                       'Siblings': '1 younger brother',
                       'Family Values': 'Moderate',
+                    }),
+                  ),
+                  _buildProfileSection(
+                    title: 'Lifestyle',
+                    content: _buildDetailGrid({
+                      'Hobbies': "Reading, Hiking",
+                      'Sports': 'Badminton',
+                    }),
+                  ),
+                   _buildProfileSection(
+                    title: 'Horoscope',
+                    content: _buildDetailGrid({
+                      'Nakshatra': "Rohini",
+                      'Mangal': 'No',
                     }),
                   ),
                   const SizedBox(height: 20),
@@ -555,6 +836,86 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
+// Image Gallery Screen
+class ImageGalleryScreen extends StatefulWidget {
+  final List<String> imageUrls;
+  const ImageGalleryScreen({super.key, required this.imageUrls});
+
+  @override
+  State<ImageGalleryScreen> createState() => _ImageGalleryScreenState();
+}
+
+class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
+  late final PageController _pageController;
+  int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          PageView.builder(
+            controller: _pageController,
+            itemCount: widget.imageUrls.length,
+            onPageChanged: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
+            itemBuilder: (context, index) {
+              return InteractiveViewer(
+                child: Image.network(
+                  widget.imageUrls[index],
+                  fit: BoxFit.contain,
+                ),
+              );
+            },
+          ),
+          Positioned(
+            bottom: 20,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(widget.imageUrls.length, (index) {
+                return Container(
+                  width: 8.0,
+                  height: 8.0,
+                  margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: _currentIndex == index
+                        ? Colors.white
+                        : Colors.white.withOpacity(0.4),
+                  ),
+                );
+              }),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
 // 6. Edit Profile Hub Screen
 class EditProfileHubScreen extends StatelessWidget {
   const EditProfileHubScreen({super.key});
@@ -579,6 +940,8 @@ class EditProfileHubScreen extends StatelessWidget {
           _buildEditCard(context, icon: LucideIcons.briefcase, label: 'Career', route: '/edit-basic-details'),
           _buildEditCard(context, icon: LucideIcons.users, label: 'Family', route: '/edit-basic-details'),
           _buildEditCard(context, icon: LucideIcons.contact, label: 'Contact', route: '/edit-basic-details'),
+          _buildEditCard(context, icon: LucideIcons.gem, label: 'Lifestyle', route: '/edit-basic-details'),
+          _buildEditCard(context, icon: LucideIcons.sun, label: 'Horoscope', route: '/edit-basic-details'),
         ],
       ),
     );
@@ -1081,7 +1444,7 @@ class SettingsScreen extends StatelessWidget {
           _buildSettingsCategory('Privacy'),
           _buildSettingsSwitch('Show my photo to all'),
           _buildSettingsCategory('Support'),
-          _buildSettingsItem(context, 'Help & Support'),
+          _buildSettingsItem(context, 'Help & Support', route: '/help'),
           const SizedBox(height: 40),
           Center(
             child: TextButton(
@@ -1122,6 +1485,54 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 }
+
+// 13. Help & Support Screen
+class HelpScreen extends StatelessWidget {
+  const HelpScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Help & Support', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.white,
+        elevation: 1,
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          const Text('FAQs', style: TextStyle(fontFamily: 'Poppins', fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+          _buildFaqItem('How do I verify my profile?'),
+          _buildFaqItem('How can I upgrade my membership?'),
+          const SizedBox(height: 24),
+          const Text('Contact Us', style: TextStyle(fontFamily: 'Poppins', fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+          ListTile(
+            leading: const Icon(LucideIcons.mail),
+            title: const Text('Email Support'),
+            onTap: () {},
+          ),
+          ListTile(
+            leading: const Icon(LucideIcons.phone),
+            title: const Text('Call Us'),
+            onTap: () {},
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFaqItem(String question) {
+    return Card(
+      child: ListTile(
+        title: Text(question, style: const TextStyle(fontWeight: FontWeight.w500)),
+        trailing: const Icon(LucideIcons.chevronRight),
+      ),
+    );
+  }
+}
+
 
 // 14. Premium Screen
 class PremiumScreen extends StatelessWidget {
@@ -1197,7 +1608,7 @@ class PremiumFeatureCard extends StatelessWidget {
         leading: Icon(icon, color: Theme.of(context).primaryColor),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
         subtitle: Text(subtitle),
-      ), 
+      ),
     );
   }
 }
