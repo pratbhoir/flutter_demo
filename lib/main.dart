@@ -20,18 +20,17 @@ class MatrimonyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Set status bar color and icon brightness for the entire app
-    // SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    //   statusBarColor: Colors.white,
-    //   statusBarIconBrightness: Brightness.dark,
-    // ));
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent, // Make status bar transparent
+      statusBarIconBrightness: Brightness.dark,
+    ));
 
     return MaterialApp(
       title: 'Agri Lagna',
       theme: ThemeData(
         primarySwatch: Colors.red,
         fontFamily: 'Lato',
-        // scaffoldBackgroundColor: const Color(0xFFF0F2F5),
-        scaffoldBackgroundColor: const Color.fromARGB(255,249, 250, 251),
+        scaffoldBackgroundColor: const Color.fromARGB(255, 249, 250, 251),
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFFD32F2F),
           primary: const Color(0xFFD32F2F),
@@ -60,6 +59,8 @@ class MatrimonyApp extends StatelessWidget {
         '/activity': (context) => const ActivityScreen(),
         '/notifications': (context) => const NotificationsScreen(),
         '/settings': (context) => const SettingsScreen(),
+        '/notification-settings': (context) => const NotificationSettingsScreen(),
+        '/hide-delete-profile': (context) => const HideDeleteProfileScreen(),
         '/filter': (context) => const FilterScreen(),
         '/search-results': (context) => const SearchResultsScreen(),
         '/help': (context) => const HelpScreen(),
@@ -474,7 +475,7 @@ class _MainScreenState extends State<MainScreen> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(LucideIcons.house), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(LucideIcons.messageCircle), label: 'Messages'),
-          BottomNavigationBarItem(icon: Icon(LucideIcons.chartBar), label: 'Activity'),
+          BottomNavigationBarItem(icon: Icon(LucideIcons.squareKanban), label: 'Activity'),
           BottomNavigationBarItem(icon: Icon(LucideIcons.user), label: 'Profile'),
         ],
         currentIndex: _selectedIndex,
@@ -508,9 +509,9 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> matchProfiles = [
-       {'name': 'Anjali Singh, 27', 'details': "5'6\" • Bangalore • Rajput", 'image': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format&fit=crop', 'work': 'Graphic Designer', 'income': '₹12L+', 'education': 'M.Des', 'imageCount': 3},
-       {'name': 'Rohan Verma, 29', 'details': "5'11\" • Delhi • Kshatriya", 'image': 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=1887&auto=format&fit=crop', 'work': 'Architect', 'income': '₹15L+', 'education': 'B.Arch', 'imageCount': 5},
-       {'name': 'Vikram Rathod, 31', 'details': "6'0\" • Pune • Maratha", 'image': 'https://images.unsplash.com/photo-1564564321837-a57b7070ac4f?q=80&w=1976&auto=format&fit=crop', 'work': 'Doctor', 'income': '₹25L+', 'education': 'MBBS, MD', 'imageCount': 2},
+       {'name': 'Anjali Singh, 27', 'details': "5'6\" • Bangalore • Rajput", 'image': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format&fit=crop', 'work': 'Graphic Designer', 'income': '₹12L+', 'education': 'M.Des', 'imageCount': 3, 'verified': true},
+       {'name': 'Rohan Verma, 29', 'details': "5'11\" • Delhi • Kshatriya", 'image': 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=1887&auto=format&fit=crop', 'work': 'Architect', 'income': '₹15L+', 'education': 'B.Arch', 'imageCount': 5, 'verified': true},
+       {'name': 'Vikram Rathod, 31', 'details': "6'0\" • Pune • Maratha", 'image': 'https://images.unsplash.com/photo-1564564321837-a57b7070ac4f?q=80&w=1976&auto=format&fit=crop', 'work': 'Doctor', 'income': '₹25L+', 'education': 'MBBS, MD', 'imageCount': 2, 'verified': false},
     ];
 
     return Scaffold(
@@ -572,6 +573,7 @@ class HomeScreen extends StatelessWidget {
             income: profile['income'],
             education: profile['education'],
             imageCount: profile['imageCount'],
+            isVerified: profile['verified'],
             onInterest: () => _showToast(context, 'Interest Sent!'),
             onShortlist: () => _showToast(context, 'Profile Shortlisted!'),
             onChat: () {
@@ -593,6 +595,7 @@ class MatchCard extends StatelessWidget {
   final String income;
   final String education;
   final int imageCount;
+  final bool isVerified;
   final VoidCallback onInterest;
   final VoidCallback onShortlist;
   final VoidCallback onChat;
@@ -606,6 +609,7 @@ class MatchCard extends StatelessWidget {
     required this.income,
     required this.education,
     required this.imageCount,
+    required this.isVerified,
     required this.onInterest,
     required this.onShortlist,
     required this.onChat,
@@ -667,14 +671,22 @@ class MatchCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    name,
-                    style: const TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      if (isVerified) ...[
+                        const SizedBox(width: 8),
+                        const Icon(LucideIcons.shieldCheck, color: Colors.blue, size: 20),
+                      ]
+                    ],
                   ),
                   const SizedBox(height: 4),
                   Text(details, style: const TextStyle(fontSize: 14, color: Colors.white)),
@@ -875,7 +887,7 @@ class ProfileScreen extends StatelessWidget {
             expandedHeight: 100.0,
             floating: false,
             pinned: true,
-            backgroundColor: const Color(0xFFFFF0F0),
+            backgroundColor: Colors.white, // Changed background to white
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 fit: StackFit.expand,
@@ -930,7 +942,7 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   const Text(
                     'Priya Sharma, 28',
-                    style: TextStyle(fontFamily: 'Poppins', fontSize: 26, fontWeight: FontWeight.w900),
+                    style: TextStyle(fontFamily: 'Poppins', fontSize: 26, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
                   const Text(
@@ -1029,6 +1041,7 @@ class ProfileScreen extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 2,
+      color: Colors.white, // Explicitly set card color to white
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -1044,12 +1057,12 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 if (route != null)
                   IconButton(
-                    icon: const Icon(LucideIcons.pen, color: Color(0xFFD32F2F), size: 16),
+                    icon: const Icon(LucideIcons.squarePen, color: Color(0xFFD32F2F), size: 16),
                     onPressed: () => Navigator.pushNamed(context, route),
                   ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             content,
           ],
         ),
@@ -1180,8 +1193,9 @@ class EditProfileHubScreen extends StatelessWidget {
             crossAxisCount: 2,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1.8,
             children: [
               _buildEditCard(context, icon: LucideIcons.circleUserRound, label: 'About Me', route: '/edit-basic-details'),
               _buildEditCard(context, icon: LucideIcons.circleUserRound, label: 'Basic Details', route: '/edit-basic-details'),
@@ -1193,7 +1207,7 @@ class EditProfileHubScreen extends StatelessWidget {
               _buildEditCard(context, icon: LucideIcons.sun, label: 'Horoscope', route: '/edit-basic-details'),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Card(
             elevation: 2,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -1208,8 +1222,8 @@ class EditProfileHubScreen extends StatelessWidget {
       ),
     );
   }
-
-  Widget _buildEditCard(BuildContext context, {required IconData icon, required String label, required String route}) {
+  
+   Widget _buildEditCard(BuildContext context, {required IconData icon, required String label, required String route}) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -1220,7 +1234,7 @@ class EditProfileHubScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, size: 40, color: Theme.of(context).primaryColor),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
           ],
         ),
@@ -1853,8 +1867,8 @@ class SettingsScreen extends StatelessWidget {
           _buildSettingsCategory('Account'),
           _buildSettingsItem(context, 'Edit Profile', route: '/edit-profile'),
           _buildSettingsItem(context, 'Change Password', route: '/change-password'),
-          _buildSettingsCategory('Privacy'),
-          _buildSettingsSwitch('Show my photo to all'),
+          _buildSettingsItem(context, 'Notification Settings', route: '/notification-settings'),
+          _buildSettingsItem(context, 'Hide/Delete Profile', route: '/hide-delete-profile'),
           _buildSettingsCategory('Support'),
           _buildSettingsItem(context, 'Help & Support', route: '/help'),
           const SizedBox(height: 40),
@@ -1887,13 +1901,139 @@ class SettingsScreen extends StatelessWidget {
       },
     );
   }
+}
 
-  Widget _buildSettingsSwitch(String title) {
-    return SwitchListTile(
-      title: Text(title),
-      value: true,
-      onChanged: (bool value) {},
-      activeColor: const Color(0xFFD32F2F),
+// Notification Settings Screen
+class NotificationSettingsScreen extends StatelessWidget {
+  const NotificationSettingsScreen({super.key});
+
+  void _showTestNotification(BuildContext context, String title, String subtitle, String imageUrl) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: CustomNotificationToast(title: title, subtitle: subtitle, imageUrl: imageUrl),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Notification Settings', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.white,
+        elevation: 1,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            ElevatedButton(
+              onPressed: () => _showTestNotification(
+                context,
+                "Pratik Bhoir messaged you",
+                "\"Hi, How are You ?\"",
+                'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1887&auto=format&fit=crop',
+              ),
+              child: const Text('Test Message Notification'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => _showTestNotification(
+                context,
+                "Pratik Bhoir sent you an Interest!",
+                "",
+                'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1887&auto=format&fit=crop',
+              ),
+              child: const Text('Test Interest Notification'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Custom Notification Toast Widget
+class CustomNotificationToast extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final String imageUrl;
+
+  const CustomNotificationToast({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.imageUrl,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Row(
+          children: [
+            CircleAvatar(
+              backgroundImage: CachedNetworkImageProvider(imageUrl),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  if (subtitle.isNotEmpty)
+                    Text(subtitle, style: const TextStyle(color: Colors.grey)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+// Hide/Delete Profile Screen
+class HideDeleteProfileScreen extends StatelessWidget {
+  const HideDeleteProfileScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Privacy', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.white,
+        elevation: 1,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            SwitchListTile(
+              title: const Text('Hide my profile'),
+              value: false,
+              onChanged: (bool value) {},
+              activeColor: Theme.of(context).primaryColor,
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(LucideIcons.trash2, color: Colors.red),
+              title: const Text('Delete my profile', style: TextStyle(color: Colors.red)),
+              onTap: () {
+                // Show confirmation dialog
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -2011,9 +2151,9 @@ class SearchResultsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // Using the same mock data for demonstration
     final List<Map<String, dynamic>> matchProfiles = [
-       {'name': 'Anjali Singh, 27', 'details': "5'6\" • Bangalore • Rajput", 'image': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format&fit=crop', 'work': 'Graphic Designer', 'income': '₹12L+', 'education': 'M.Des', 'imageCount': 3},
-       {'name': 'Rohan Verma, 29', 'details': "5'11\" • Delhi • Kshatriya", 'image': 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=1887&auto=format&fit=crop', 'work': 'Architect', 'income': '₹15L+', 'education': 'B.Arch', 'imageCount': 5},
-       {'name': 'Vikram Rathod, 31', 'details': "6'0\" • Pune • Maratha", 'image': 'https://images.unsplash.com/photo-1564564321837-a57b7070ac4f?q=80&w=1976&auto=format&fit=crop', 'work': 'Doctor', 'income': '₹25L+', 'education': 'MBBS, MD', 'imageCount': 2},
+       {'name': 'Anjali Singh, 27', 'details': "5'6\" • Bangalore • Rajput", 'image': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format&fit=crop', 'work': 'Graphic Designer', 'income': '₹12L+', 'education': 'M.Des', 'imageCount': 3, 'verified': true},
+       {'name': 'Rohan Verma, 29', 'details': "5'11\" • Delhi • Kshatriya", 'image': 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=1887&auto=format&fit=crop', 'work': 'Architect', 'income': '₹15L+', 'education': 'B.Arch', 'imageCount': 5, 'verified': true},
+       {'name': 'Vikram Rathod, 31', 'details': "6'0\" • Pune • Maratha", 'image': 'https://images.unsplash.com/photo-1564564321837-a57b7070ac4f?q=80&w=1976&auto=format&fit=crop', 'work': 'Doctor', 'income': '₹25L+', 'education': 'MBBS, MD', 'imageCount': 2, 'verified': false},
     ];
 
     return Scaffold(
@@ -2036,6 +2176,7 @@ class SearchResultsScreen extends StatelessWidget {
               income: profile['income'],
               education: profile['education'],
               imageCount: profile['imageCount'],
+              isVerified: profile['verified'],
               onInterest: () {},
               onShortlist: () {},
               onChat: () {},
@@ -2103,38 +2244,42 @@ class PremiumScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.fromLTRB(16, 50, 16, 32),
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFFFDE047), Color(0xFFF0F2F5)],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+      body: SafeArea(child: 
+        Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.fromLTRB(100, 80, 100, 32),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFFFDE047), Color.fromARGB(255, 249, 250, 251)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+              child: const Column(
+                children: [
+                  Icon(LucideIcons.gem, color: Color(0xFFB45309), size: 64),
+                  SizedBox(height: 16),
+                  Text('Go Premium', style: TextStyle(fontFamily: 'Poppins', fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF78350F))),
+                  SizedBox(height: 8),
+                  Text('Unlock exclusive benefits & find your match faster!', textAlign: TextAlign.center, style: TextStyle(color: Color(0xFF92400E))),
+                  SizedBox(height: 20),
+                ],
               ),
             ),
-            child: const Column(
-              children: [
-                Icon(LucideIcons.gem, color: Color(0xFFB45309), size: 64),
-                SizedBox(height: 16),
-                Text('Go Premium', style: TextStyle(fontFamily: 'Poppins', fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF78350F))),
-                SizedBox(height: 8),
-                Text('Unlock exclusive benefits & find your match faster!', style: TextStyle(color: Color(0xFF92400E))),
-              ],
+            SizedBox(height: 20),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: const [
+                  PremiumFeatureCard(icon: LucideIcons.send, title: 'Send Unlimited Interests', subtitle: "Don't wait, express your interest freely."),
+                  PremiumFeatureCard(icon: LucideIcons.phone, title: 'View Contact Details', subtitle: 'Connect with matches directly.'),
+                  PremiumFeatureCard(icon: LucideIcons.eye, title: 'See Who Viewed Your Profile', subtitle: 'Know who is interested in you.'),
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: const [
-                PremiumFeatureCard(icon: LucideIcons.send, title: 'Send Unlimited Interests', subtitle: "Don't wait, express your interest freely."),
-                PremiumFeatureCard(icon: LucideIcons.phone, title: 'View Contact Details', subtitle: 'Connect with matches directly.'),
-                PremiumFeatureCard(icon: LucideIcons.eye, title: 'See Who Viewed Your Profile', subtitle: 'Know who is interested in you.'),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
