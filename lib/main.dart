@@ -20,6 +20,7 @@ class Config {
   static const int timeoutSeconds = 30;
   static const bool isDebugMode = true;
   static const double headerHeight = 70;
+  static const Color highlightColor = Color(0xFFF0F2F5);
 }
 
 // Main App Widget
@@ -892,159 +893,156 @@ class ProfileScreen extends StatelessWidget {
     final List<String> profileImages = [
       'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1887&auto=format&fit=crop',
       'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1964&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop'
+      'https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop',
     ];
 
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          SliverAppBar(
-            expandedHeight: 100.0,
-            floating: false,
-            pinned: true,
-            backgroundColor: Colors.white, // Changed background to white
-            flexibleSpace: FlexibleSpaceBar(
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  CachedNetworkImage(
-                    imageUrl: profileImages[0],
-                    fit: BoxFit.cover,
-                  ),
-                  ClipRect(
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                      child: Container(
-                        color: Colors.black.withOpacity(0.1),
-                      ),
+          SliverToBoxAdapter(
+            child: Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.center,
+              children: [
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: 170, // set height here
+                  child: ImageFiltered(
+                    imageFilter: ImageFilter.blur(sigmaX: 3, sigmaY: 3), // blur intensity
+                    child: Image.network(
+                      profileImages[0],
+                      fit: BoxFit.cover,
                     ),
                   ),
-                ],
-              ),
-            ),
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(60),
-              child: Stack(
-                clipBehavior: Clip.none,
-                alignment: Alignment.center,
-                children: [
-                  Positioned(
-                    top: 20,
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) => ImageGalleryScreen(imageUrls: profileImages),
-                        ));
-                      },
-                      child: CircleAvatar(
-                        radius: 94,
-                        backgroundColor: Colors.white,
-                        child: CircleAvatar(
-                          radius: 90,
-                          backgroundImage: CachedNetworkImageProvider(profileImages[0]),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 70.0),
+                  child: Column(
+                    children: [
+                      Container(
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => ImageGalleryScreen(
+                                  imageUrls: profileImages,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Center(
+                            child: CircleAvatar(
+                              radius: 94,
+                              backgroundColor: Config.highlightColor,
+                              child: CircleAvatar(
+                                radius: 90,
+                                backgroundImage: CachedNetworkImageProvider(
+                                  profileImages[0],
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 100.0),
-              child: Column(
-                children: [
-                  const Text(
-                    'Priya Sharma, 28',
-                    style: TextStyle(fontFamily: 'Poppins', fontSize: 26, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Software Engineer at Google',
-                    style: TextStyle(color: Colors.black54, fontSize: 16),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => Navigator.pushNamed(context, '/edit-profile'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFD32F2F),
-                      foregroundColor: Colors.white,
-                      shape: const StadiumBorder(),
-                    ),
-                    child: const Text('Edit Profile'),
-                  ),
-                  const SizedBox(height: 24),
-                  _buildProfileSection(
-                    context: context,
-                    title: 'About Me',
-                    route: '/edit-basic-details',
-                    content: const Text(
-                      "Looking for a compatible partner to share life's beautiful journey. I'm an optimistic and modern individual with a deep respect for traditional values.",
-                      style: TextStyle(color: Colors.black54, height: 1.5),
-                    ),
-                  ),
-                  _buildProfileSection(
-                    context: context,
-                    title: 'Basic Details',
-                    route: '/edit-basic-details',
-                    content: _buildDetailGrid({
-                      'Height': "5' 5\"",
-                      'Religion': 'Hindu, Brahmin',
-                    }),
-                  ),
-                  _buildProfileSection(
-                    context: context,
-                      title: 'Contact Details',
-                      route: '/edit-basic-details',
-                      content: _buildDetailGrid({
-                        'Email': "priya.s@email.com",
-                        'Phone': '9876543210',
-                      }),
-                    ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Priya Sharma, 28',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Software Engineer at Google',
+                        style: TextStyle(color: Colors.black54, fontSize: 16),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () => Navigator.pushNamed(context, '/edit-profile'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFD32F2F),
+                          foregroundColor: Colors.white,
+                          shape: const StadiumBorder(),
+                        ),
+                        child: const Text('Edit Profile'),
+                      ),
+                      const SizedBox(height: 24),
                       _buildProfileSection(
-                      context: context,
-                      title: 'Education & Career',
-                      route: '/edit-basic-details',
-                      content: _buildDetailGrid({
-                        'Highest Education': "M.Tech",
-                        'Employed In': 'Private Sector',
-                        'Occupation': 'Software Engineer',
-                        'Annual Income': '₹20 Lakhs+',
-                      }),
-                    ),
-                  _buildProfileSection(
-                    context: context,
-                    title: 'Family Details',
-                    route: '/edit-basic-details',
-                    content: _buildDetailGrid({
-                      "Father's Occupation": 'Businessman',
-                      "Mother's Occupation": 'Homemaker',
-                      'Siblings': '1 younger brother',
-                      'Family Values': 'Moderate',
-                    }),
+                        context: context,
+                        title: 'About Me',
+                        route: '/edit-basic-details',
+                        content: const Text(
+                          "Looking for a compatible partner to share life's beautiful journey. I'm an optimistic and modern individual with a deep respect for traditional values.",
+                          style: TextStyle(color: Colors.black54, height: 1.5),
+                        ),
+                      ),
+                      _buildProfileSection(
+                        context: context,
+                        title: 'Basic Details',
+                        route: '/edit-basic-details',
+                        content: _buildDetailGrid({
+                          'Height': "5' 5\"",
+                          'Religion': 'Hindu, Brahmin',
+                        }),
+                      ),
+                      _buildProfileSection(
+                        context: context,
+                        title: 'Contact Details',
+                        route: '/edit-basic-details',
+                        content: _buildDetailGrid({
+                          'Email': "priya.s@email.com",
+                          'Phone': '9876543210',
+                        }),
+                      ),
+                      _buildProfileSection(
+                        context: context,
+                        title: 'Education & Career',
+                        route: '/edit-basic-details',
+                        content: _buildDetailGrid({
+                          'Highest Education': "M.Tech",
+                          'Employed In': 'Private Sector',
+                          'Occupation': 'Software Engineer',
+                          'Annual Income': '₹20 Lakhs+',
+                        }),
+                      ),
+                      _buildProfileSection(
+                        context: context,
+                        title: 'Family Details',
+                        route: '/edit-basic-details',
+                        content: _buildDetailGrid({
+                          "Father's Occupation": 'Businessman',
+                          "Mother's Occupation": 'Homemaker',
+                          'Siblings': '1 younger brother',
+                          'Family Values': 'Moderate',
+                        }),
+                      ),
+                      _buildProfileSection(
+                        context: context,
+                        title: 'Lifestyle',
+                        route: '/edit-basic-details',
+                        content: _buildDetailGrid({
+                          'Hobbies': "Reading, Hiking",
+                          'Sports': 'Badminton',
+                        }),
+                      ),
+                      _buildProfileSection(
+                        context: context,
+                        title: 'Horoscope',
+                        route: '/edit-basic-details',
+                        content: _buildDetailGrid({
+                          'Nakshatra': "Rohini",
+                          'Mangal': 'No',
+                        }),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
                   ),
-                  _buildProfileSection(
-                    context: context,
-                    title: 'Lifestyle',
-                    route: '/edit-basic-details',
-                    content: _buildDetailGrid({
-                      'Hobbies': "Reading, Hiking",
-                      'Sports': 'Badminton',
-                    }),
-                  ),
-                    _buildProfileSection(
-                    context: context,
-                    title: 'Horoscope',
-                    route: '/edit-basic-details',
-                    content: _buildDetailGrid({
-                      'Nakshatra': "Rohini",
-                      'Mangal': 'No',
-                    }),
-                  ),
-                  const SizedBox(height: 20),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
@@ -1059,7 +1057,7 @@ class ProfileScreen extends StatelessWidget {
       color: Colors.white, // Explicitly set card color to white
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.fromLTRB(16, 2, 7, 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1634,6 +1632,7 @@ class ActivityScreen extends StatelessWidget {
           centerTitle: true,
           backgroundColor: Colors.white,
           elevation: 1,
+          toolbarHeight: Config.headerHeight,
         ),
         body: Column(
           children: [
