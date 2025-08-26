@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(const MatrimonyApp());
@@ -17,12 +19,19 @@ class MatrimonyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Set status bar color and icon brightness for the entire app
+    // SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    //   statusBarColor: Colors.white,
+    //   statusBarIconBrightness: Brightness.dark,
+    // ));
+
     return MaterialApp(
       title: 'Agri Lagna',
       theme: ThemeData(
         primarySwatch: Colors.red,
         fontFamily: 'Lato',
-        scaffoldBackgroundColor: const Color(0xFFF0F2F5),
+        // scaffoldBackgroundColor: const Color(0xFFF0F2F5),
+        scaffoldBackgroundColor: const Color.fromARGB(255,249, 250, 251),
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFFD32F2F),
           primary: const Color(0xFFD32F2F),
@@ -34,12 +43,13 @@ class MatrimonyApp extends StatelessWidget {
         ),
       ),
       debugShowCheckedModeBanner: false,
-      home: const SafeArea(child: SplashScreen()), // Wrap splash screen with SafeArea
+      home: const SplashScreen(),
       routes: {
         '/login': (context) => const LoginScreen(),
         '/signup': (context) => const SignUpScreen(),
         '/otp': (context) => const OtpScreen(),
         '/forgot-password': (context) => const ForgotPasswordScreen(),
+        '/change-password': (context) => const ChangePasswordScreen(),
         '/home': (context) => const MainScreen(),
         '/profile': (context) => const ProfileScreen(),
         '/edit-profile': (context) => const EditProfileHubScreen(),
@@ -54,6 +64,7 @@ class MatrimonyApp extends StatelessWidget {
         '/search-results': (context) => const SearchResultsScreen(),
         '/help': (context) => const HelpScreen(),
         '/premium': (context) => const PremiumScreen(),
+        '/boost-profile': (context) => const BoostProfileScreen(),
       },
     );
   }
@@ -373,6 +384,58 @@ class ForgotPasswordScreen extends StatelessWidget {
   }
 }
 
+// Change Password Screen
+class ChangePasswordScreen extends StatelessWidget {
+  const ChangePasswordScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Change Password', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.white,
+        elevation: 1,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          children: [
+            _buildTextField(label: 'Current Password', obscureText: true),
+            _buildTextField(label: 'New Password', obscureText: true),
+            _buildTextField(label: 'Confirm New Password', obscureText: true),
+          ],
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ElevatedButton(
+          onPressed: () => Navigator.pop(context),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Theme.of(context).primaryColor,
+            foregroundColor: Colors.white,
+            minimumSize: const Size(double.infinity, 50),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+          child: const Text('Update Password', style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({required String label, bool obscureText = false}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20.0),
+      child: TextFormField(
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      ),
+    );
+  }
+}
+
 // Main Screen with Bottom Navigation
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -404,8 +467,8 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _mainScreenKey, // Assign the global key to the scaffold
-      drawer: const AppDrawer(), // AppDrawer
+      key: _mainScreenKey,
+      drawer: SafeArea(child: AppDrawer()),
       body: _widgetOptions(_mainScreenKey)[_selectedIndex], // Show the appropriate screen
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
@@ -426,11 +489,10 @@ class _MainScreenState extends State<MainScreen> {
 }
 
 
-// Home Screen
+// 7. Home Screen
 class HomeScreen extends StatelessWidget {
   final GlobalKey<ScaffoldState> mainScreenKey;
-
-  const HomeScreen({super.key, required this.mainScreenKey}); // Pass the scaffold key
+  const HomeScreen({super.key, required this.mainScreenKey});
 
   void _showToast(BuildContext context, String message) {
     final snackBar = SnackBar(
@@ -453,22 +515,17 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        leading: Builder(
-          builder: (context) => Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: GestureDetector(
-              onTap: () {
-                // Open the drawer using the global scaffold key
-                mainScreenKey.currentState?.openDrawer();
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFFD32F2F), width: 2),
-                ),
-                child: const CircleAvatar(
-                  backgroundImage: CachedNetworkImageProvider('https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1887&auto=format&fit=crop'),
-                ),
+        leading: Padding(
+          padding: const EdgeInsets.all(7.0),
+          child: GestureDetector(
+            onTap: () => mainScreenKey.currentState?.openDrawer(),
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFFD32F2F), width: 2),
+              ),
+              child: const CircleAvatar(
+                backgroundImage: CachedNetworkImageProvider('https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1887&auto=format&fit=crop'),
               ),
             ),
           ),
@@ -480,7 +537,24 @@ class HomeScreen extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(onPressed: () => Navigator.pushNamed(context, '/filter'), icon: const Icon(LucideIcons.funnel)),
-          IconButton(onPressed: () => Navigator.pushNamed(context, '/notifications'), icon: const Icon(LucideIcons.bell)),
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              IconButton(onPressed: () => Navigator.pushNamed(context, '/notifications'), icon: const Icon(LucideIcons.bell)),
+              Positioned(
+                top: 10,
+                right: 10,
+                child: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  constraints: const BoxConstraints(minWidth: 8, minHeight: 8),
+                ),
+              )
+            ],
+          ),
         ],
         backgroundColor: Colors.white,
         elevation: 1,
@@ -733,13 +807,20 @@ class AppDrawer extends StatelessWidget {
                     ],
                   ),
                 ),
-                // const Divider(),
                 ListTile(
                   leading: const Icon(LucideIcons.userCog),
                   title: const Text('Edit Profile'),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.pushNamed(context, '/edit-profile');
+                  },
+                ),
+                 ListTile(
+                  leading: const Icon(LucideIcons.chevronsUp),
+                  title: const Text('Boost Profile'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, '/boost-profile');
                   },
                 ),
                 ListTile(
@@ -758,7 +839,7 @@ class AppDrawer extends StatelessWidget {
                     Navigator.pushNamed(context, '/help');
                   },
                 ),
-                // const Divider(),  
+                const Divider(),
                 ListTile(
                   leading: const Icon(LucideIcons.logOut, color: Color(0xFFD32F2F)),
                   title: const Text('Logout'),
@@ -788,120 +869,155 @@ class ProfileScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(
-          title: const Text('Profile', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
-          centerTitle: true,
-          backgroundColor: Colors.white,
-          elevation: 1,
-        ),
       body: CustomScrollView(
         slivers: [
-          SliverToBoxAdapter(
-            child: Stack(
-              clipBehavior: Clip.none,
-              alignment: Alignment.center,
-              children: [
-                Container(color: const Color(0xFFF0F2F5)),
-                Positioned(
-                  top: 30,
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => ImageGalleryScreen(imageUrls: profileImages),
-                      ));
-                    },
-                    child: CircleAvatar(
-                      radius: 100,
-                      backgroundColor: const Color(0xFFD32F2F),
-                      child: CircleAvatar(
-                        radius: 96,
-                        backgroundImage: CachedNetworkImageProvider(profileImages[0]),
+          SliverAppBar(
+            expandedHeight: 100.0,
+            floating: false,
+            pinned: true,
+            backgroundColor: const Color(0xFFFFF0F0),
+            flexibleSpace: FlexibleSpaceBar(
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  CachedNetworkImage(
+                    imageUrl: profileImages[0],
+                    fit: BoxFit.cover,
+                  ),
+                  ClipRect(
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: Container(
+                        color: Colors.black.withOpacity(0.1),
                       ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 250.0),
-                  child: Column(
-                    children: [
-                      const Text(
-                        'Priya Sharma, 28',
-                        style: TextStyle(fontFamily: 'Poppins', fontSize: 22, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        'Software Engineer at Google',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () => Navigator.pushNamed(context, '/edit-profile'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFD32F2F),
-                          foregroundColor: Colors.white,
-                          shape: const StadiumBorder(),
-                        ),
-                        child: const Text('Edit Profile'),
-                      ),
-                      const SizedBox(height: 24),
-                      _buildProfileSection(
-                        title: 'About Me',
-                        content: const Text(
-                          "Looking for a compatible partner to share life's beautiful journey. I'm an optimistic and modern individual with a deep respect for traditional values.",
-                          style: TextStyle(color: Colors.black54, height: 1.5),
+                ],
+              ),
+            ),
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(60),
+              child: Stack(
+                clipBehavior: Clip.none,
+                alignment: Alignment.center,
+                children: [
+                  Positioned(
+                    top: 20,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => ImageGalleryScreen(imageUrls: profileImages),
+                        ));
+                      },
+                      child: CircleAvatar(
+                        radius: 94,
+                        backgroundColor: Colors.white,
+                        child: CircleAvatar(
+                          radius: 90,
+                          backgroundImage: CachedNetworkImageProvider(profileImages[0]),
                         ),
                       ),
-                      _buildProfileSection(
-                        title: 'Basic Details',
-                        content: _buildDetailGrid({
-                          'Height': "5' 5\"",
-                          'Religion': 'Hindu, Brahmin',
-                        }),
-                      ),
-                      _buildProfileSection(
-                        title: 'Contact Details',
-                        content: _buildDetailGrid({
-                          'Email': "priya.s@email.com",
-                          'Phone': '9876543210',
-                        }),
-                      ),
-                       _buildProfileSection(
-                        title: 'Education & Career',
-                        content: _buildDetailGrid({
-                          'Highest Education': "M.Tech",
-                          'Employed In': 'Private Sector',
-                          'Occupation': 'Software Engineer',
-                          'Annual Income': '₹20 Lakhs+',
-                        }),
-                      ),
-                      _buildProfileSection(
-                        title: 'Family Details',
-                        content: _buildDetailGrid({
-                          "Father's Occupation": 'Businessman',
-                          "Mother's Occupation": 'Homemaker',
-                          'Siblings': '1 younger brother',
-                          'Family Values': 'Moderate',
-                        }),
-                      ),
-                      _buildProfileSection(
-                        title: 'Lifestyle',
-                        content: _buildDetailGrid({
-                          'Hobbies': "Reading, Hiking",
-                          'Sports': 'Badminton',
-                        }),
-                      ),
-                       _buildProfileSection(
-                        title: 'Horoscope',
-                        content: _buildDetailGrid({
-                          'Nakshatra': "Rohini",
-                          'Mangal': 'No',
-                        }),
-                      ),
-                      const SizedBox(height: 20),
-                    ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 100.0),
+              child: Column(
+                children: [
+                  const Text(
+                    'Priya Sharma, 28',
+                    style: TextStyle(fontFamily: 'Poppins', fontSize: 26, fontWeight: FontWeight.w900),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Software Engineer at Google',
+                    style: TextStyle(color: Colors.black54, fontSize: 16),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pushNamed(context, '/edit-profile'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFD32F2F),
+                      foregroundColor: Colors.white,
+                      shape: const StadiumBorder(),
+                    ),
+                    child: const Text('Edit Profile'),
+                  ),
+                  const SizedBox(height: 24),
+                  _buildProfileSection(
+                    context: context,
+                    title: 'About Me',
+                    route: '/edit-basic-details',
+                    content: const Text(
+                      "Looking for a compatible partner to share life's beautiful journey. I'm an optimistic and modern individual with a deep respect for traditional values.",
+                      style: TextStyle(color: Colors.black54, height: 1.5),
+                    ),
+                  ),
+                  _buildProfileSection(
+                    context: context,
+                    title: 'Basic Details',
+                    route: '/edit-basic-details',
+                    content: _buildDetailGrid({
+                      'Height': "5' 5\"",
+                      'Religion': 'Hindu, Brahmin',
+                    }),
+                  ),
+                  _buildProfileSection(
+                    context: context,
+                      title: 'Contact Details',
+                      route: '/edit-basic-details',
+                      content: _buildDetailGrid({
+                        'Email': "priya.s@email.com",
+                        'Phone': '9876543210',
+                      }),
+                    ),
+                      _buildProfileSection(
+                      context: context,
+                      title: 'Education & Career',
+                      route: '/edit-basic-details',
+                      content: _buildDetailGrid({
+                        'Highest Education': "M.Tech",
+                        'Employed In': 'Private Sector',
+                        'Occupation': 'Software Engineer',
+                        'Annual Income': '₹20 Lakhs+',
+                      }),
+                    ),
+                  _buildProfileSection(
+                    context: context,
+                    title: 'Family Details',
+                    route: '/edit-basic-details',
+                    content: _buildDetailGrid({
+                      "Father's Occupation": 'Businessman',
+                      "Mother's Occupation": 'Homemaker',
+                      'Siblings': '1 younger brother',
+                      'Family Values': 'Moderate',
+                    }),
+                  ),
+                  _buildProfileSection(
+                    context: context,
+                    title: 'Lifestyle',
+                    route: '/edit-basic-details',
+                    content: _buildDetailGrid({
+                      'Hobbies': "Reading, Hiking",
+                      'Sports': 'Badminton',
+                    }),
+                  ),
+                    _buildProfileSection(
+                    context: context,
+                    title: 'Horoscope',
+                    route: '/edit-basic-details',
+                    content: _buildDetailGrid({
+                      'Nakshatra': "Rohini",
+                      'Mangal': 'No',
+                    }),
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              ),
             ),
           ),
         ],
@@ -909,7 +1025,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileSection({required String title, required Widget content}) {
+  Widget _buildProfileSection({required BuildContext context, required String title, required Widget content, String? route}) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 2,
@@ -919,9 +1035,19 @@ class ProfileScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: const TextStyle(fontFamily: 'Poppins', fontSize: 16, fontWeight: FontWeight.w600),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(fontFamily: 'Poppins', fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                if (route != null)
+                  IconButton(
+                    icon: const Icon(LucideIcons.pen, color: Color(0xFFD32F2F), size: 16),
+                    onPressed: () => Navigator.pushNamed(context, route),
+                  ),
+              ],
             ),
             const SizedBox(height: 12),
             content,
@@ -1002,8 +1128,8 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
             },
             itemBuilder: (context, index) {
               return InteractiveViewer(
-                child: Image.network(
-                  widget.imageUrls[index],
+                child: CachedNetworkImage(
+                  imageUrl: widget.imageUrls[index],
                   fit: BoxFit.contain,
                 ),
               );
@@ -1280,6 +1406,7 @@ class MessageListItem extends StatelessWidget {
         radius: 28,
         backgroundImage: CachedNetworkImageProvider(imageUrl),
       ),
+      contentPadding: EdgeInsets.fromLTRB(10, 6, 10, 6),
       title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
       subtitle: Text(message, maxLines: 1, overflow: TextOverflow.ellipsis),
       trailing: Column(
@@ -1473,22 +1600,69 @@ class ActivityScreen extends StatelessWidget {
           centerTitle: true,
           backgroundColor: Colors.white,
           elevation: 1,
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'Interests Received'),
-              Tab(text: 'Interests Sent'),
-            ],
-            labelColor: Color(0xFFD32F2F),
-            unselectedLabelColor: Colors.grey,
-            indicatorColor: Color(0xFFD32F2F),
-          ),
         ),
-        body: const TabBarView(
+        body: Column(
           children: [
-            InterestList(isReceived: true),
-            InterestList(isReceived: false),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _buildActivityCountCard(
+                      count: '12',
+                      label: 'Profile Visits',
+                      color: const Color(0xFFFFF0F0),
+                      textColor: const Color(0xFFD32F2F),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildActivityCountCard(
+                      count: '8',
+                      label: 'Shortlisted Profiles',
+                      color: Colors.blue.shade50,
+                      textColor: Colors.blue.shade700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const TabBar(
+              tabs: [
+                Tab(text: 'Interests Received'),
+                Tab(text: 'Interests Sent'),
+              ],
+              labelColor: Color(0xFFD32F2F),
+              unselectedLabelColor: Colors.grey,
+              indicatorColor: Color(0xFFD32F2F),
+            ),
+            const Expanded(
+              child: TabBarView(
+                children: [
+                  InterestList(isReceived: true),
+                  InterestList(isReceived: false),
+                ],
+              ),
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildActivityCountCard({required String count, required String label, required Color color, required Color textColor}) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Text(count, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: textColor)),
+          const SizedBox(height: 4),
+          Text(label, style: TextStyle(fontSize: 12, color: textColor)),
+        ],
       ),
     );
   }
@@ -1539,7 +1713,7 @@ class InterestCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.network(imageUrl, width: 60, height: 60, fit: BoxFit.cover),
+              child: CachedNetworkImage(imageUrl: imageUrl, width: 60, height: 60, fit: BoxFit.cover),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -1586,20 +1760,24 @@ class NotificationsScreen extends StatelessWidget {
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
-        children: const [
+        children: [
           NotificationCard(
-            icon: LucideIcons.heart,
-            iconColor: Color(0xFFD32F2F),
-            title: 'New Match!',
-            subtitle: 'You and Rohan Verma have liked each other.',
-            time: '5 minutes ago',
+            imageUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1887&auto=format&fit=crop',
+            title: 'Pratik Bhoir visited your profile',
+            time: '1 hour ago',
+            actionButton: ElevatedButton(
+              onPressed: () => Navigator.pushNamed(context, '/profile'),
+              child: const Text('View Profile'),
+            ),
           ),
           NotificationCard(
-            icon: LucideIcons.messageSquare,
-            iconColor: Colors.blue,
-            title: 'New Message from Anjali Singh',
-            subtitle: '"Thanks for accepting my request!"',
-            time: '2 hours ago',
+            imageUrl: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=1887&auto=format&fit=crop',
+            title: 'Rahul Mhatre has sent you an Interest!',
+            time: '3 hours ago',
+            actionButton: ElevatedButton(
+              onPressed: () {},
+              child: const Text('Respond'),
+            ),
           ),
         ],
       ),
@@ -1608,27 +1786,24 @@ class NotificationsScreen extends StatelessWidget {
 }
 
 class NotificationCard extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
+  final String imageUrl;
   final String title;
-  final String subtitle;
   final String time;
+  final Widget? actionButton;
 
   const NotificationCard({
     super.key,
-    required this.icon,
-    required this.iconColor,
+    required this.imageUrl,
     required this.title,
-    required this.subtitle,
     required this.time,
+    this.actionButton,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      color: iconColor.withOpacity(0.1),
-      elevation: 0,
+      elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -1636,8 +1811,8 @@ class NotificationCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CircleAvatar(
-              backgroundColor: iconColor,
-              child: Icon(icon, color: Colors.white, size: 20),
+              radius: 24,
+              backgroundImage: CachedNetworkImageProvider(imageUrl),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -1646,9 +1821,11 @@ class NotificationCard extends StatelessWidget {
                 children: [
                   Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text(subtitle, style: const TextStyle(color: Colors.black54)),
-                  const SizedBox(height: 8),
                   Text(time, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                  if (actionButton != null) ...[
+                    const SizedBox(height: 8),
+                    actionButton!,
+                  ]
                 ],
               ),
             ),
@@ -1675,7 +1852,7 @@ class SettingsScreen extends StatelessWidget {
         children: [
           _buildSettingsCategory('Account'),
           _buildSettingsItem(context, 'Edit Profile', route: '/edit-profile'),
-          _buildSettingsItem(context, 'Change Password'),
+          _buildSettingsItem(context, 'Change Password', route: '/change-password'),
           _buildSettingsCategory('Privacy'),
           _buildSettingsSwitch('Show my photo to all'),
           _buildSettingsCategory('Support'),
@@ -1722,8 +1899,15 @@ class SettingsScreen extends StatelessWidget {
 }
 
 // Filter Screen
-class FilterScreen extends StatelessWidget {
+class FilterScreen extends StatefulWidget {
   const FilterScreen({super.key});
+
+  @override
+  State<FilterScreen> createState() => _FilterScreenState();
+}
+
+class _FilterScreenState extends State<FilterScreen> {
+  bool _withPhoto = true;
 
   @override
   Widget build(BuildContext context) {
@@ -1738,11 +1922,18 @@ class FilterScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildFilterSectionTitle('Age Range'),
-            RangeSlider(values: RangeValues(25, 35), min: 18, max: 60, onChanged: null),
-            _buildFilterSectionTitle('Marital Status'),
-            _buildFilterChip('Never Married', true),
-            _buildFilterChip('Divorced', false),
+            _buildDropdownRow("Age", "Min Age", "Max Age", ["18", "25", "35"]),
+            _buildDropdownRow("Height", "Min Height", "Max Height", ["5'0\"", "5'5\"", "6'0\""]),
+            _buildMultiSelect("Marital Status", ["Never Married", "Divorced", "Widowed"]),
+            _buildMultiSelect("Religion", ["Hindu", "Muslim", "Christian"]),
+            _buildMultiSelect("Caste", ["Brahmin", "Kshatriya", "Other"]),
+            _buildDropdownRow("Income", "Min Income", "Max Income", ["₹5L+", "₹10L+", "₹20L+"]),
+            SwitchListTile(
+              title: const Text("Profiles with Photo", style: TextStyle(fontWeight: FontWeight.bold)),
+              value: _withPhoto,
+              onChanged: (val) => setState(() => _withPhoto = val),
+              activeColor: Theme.of(context).primaryColor,
+            ),
           ],
         ),
       ),
@@ -1762,18 +1953,52 @@ class FilterScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFilterSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 24.0, bottom: 8.0),
-      child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+  Widget _buildDropdownRow(String title, String label1, String label2, List<String> items) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(child: _buildDropdown(label1, items)),
+            const SizedBox(width: 16),
+            Expanded(child: _buildDropdown(label2, items)),
+          ],
+        ),
+        const SizedBox(height: 16),
+      ],
     );
   }
 
-  Widget _buildFilterChip(String label, bool isSelected) {
-    return Chip(
-      label: Text(label),
-      backgroundColor: isSelected ? const Color(0xFFD32F2F) : Colors.grey[300],
-      labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.black),
+  Widget _buildDropdown(String label, List<String> items) {
+    return DropdownButtonFormField<String>(
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+      items: items.map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+      onChanged: (_) {},
+    );
+  }
+
+  Widget _buildMultiSelect(String title, List<String> options) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8.0,
+          children: options.map((option) => Chip(label: Text(option))).toList(),
+        ),
+        const SizedBox(height: 16),
+      ],
     );
   }
 }
@@ -1784,14 +2009,39 @@ class SearchResultsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Using the same mock data for demonstration
+    final List<Map<String, dynamic>> matchProfiles = [
+       {'name': 'Anjali Singh, 27', 'details': "5'6\" • Bangalore • Rajput", 'image': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format&fit=crop', 'work': 'Graphic Designer', 'income': '₹12L+', 'education': 'M.Des', 'imageCount': 3},
+       {'name': 'Rohan Verma, 29', 'details': "5'11\" • Delhi • Kshatriya", 'image': 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=1887&auto=format&fit=crop', 'work': 'Architect', 'income': '₹15L+', 'education': 'B.Arch', 'imageCount': 5},
+       {'name': 'Vikram Rathod, 31', 'details': "6'0\" • Pune • Maratha", 'image': 'https://images.unsplash.com/photo-1564564321837-a57b7070ac4f?q=80&w=1976&auto=format&fit=crop', 'work': 'Doctor', 'income': '₹25L+', 'education': 'MBBS, MD', 'imageCount': 2},
+    ];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Filtered Results', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 1,
       ),
-      body: const Center(
-        child: Text('Matching profiles will be shown here.'),
+      body: ListView.builder(
+        itemCount: matchProfiles.length,
+        itemBuilder: (context, index) {
+          final profile = matchProfiles[index];
+          return SizedBox(
+            height: MediaQuery.of(context).size.height * 0.8, // Give a fixed height to the card
+            child: MatchCard(
+              name: profile['name'],
+              details: profile['details'],
+              imageUrl: profile['image'],
+              work: profile['work'],
+              income: profile['income'],
+              education: profile['education'],
+              imageCount: profile['imageCount'],
+              onInterest: () {},
+              onShortlist: () {},
+              onChat: () {},
+            ),
+          );
+        },
       ),
     );
   }
@@ -1920,6 +2170,53 @@ class PremiumFeatureCard extends StatelessWidget {
         leading: Icon(icon, color: Theme.of(context).primaryColor),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
         subtitle: Text(subtitle),
+      ),
+    );
+  }
+}
+
+// Boost Profile Screen
+class BoostProfileScreen extends StatelessWidget {
+  const BoostProfileScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Boost Profile', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.white,
+        elevation: 1,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(LucideIcons.trendingUp, color: Color(0xFFD32F2F), size: 80),
+            const SizedBox(height: 24),
+            const Text(
+              'Get Noticed!',
+              style: TextStyle(fontFamily: 'Poppins', fontSize: 28, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Increase your visibility and get up to 5x more profile views for 24 hours.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey, fontSize: 16),
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).primaryColor,
+                foregroundColor: Colors.white,
+                minimumSize: const Size(double.infinity, 50),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              child: const Text('Boost My Profile', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
       ),
     );
   }
