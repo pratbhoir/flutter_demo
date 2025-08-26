@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:flutter/gestures.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-
+import 'package:cached_network_image/cached_network_image.dart';
 
 void main() {
   runApp(const MatrimonyApp());
@@ -34,7 +34,7 @@ class MatrimonyApp extends StatelessWidget {
         ),
       ),
       debugShowCheckedModeBanner: false,
-      home: const SplashScreen(),
+      home: const SafeArea(child: SplashScreen()), // Wrap splash screen with SafeArea
       routes: {
         '/login': (context) => const LoginScreen(),
         '/signup': (context) => const SignUpScreen(),
@@ -467,7 +467,7 @@ class HomeScreen extends StatelessWidget {
                   border: Border.all(color: const Color(0xFFD32F2F), width: 2),
                 ),
                 child: const CircleAvatar(
-                  backgroundImage: NetworkImage('https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1887&auto=format&fit=crop'),
+                  backgroundImage: CachedNetworkImageProvider('https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1887&auto=format&fit=crop'),
                 ),
               ),
             ),
@@ -545,7 +545,7 @@ class MatchCard extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           image: DecorationImage(
-            image: NetworkImage(imageUrl),
+            image: CachedNetworkImageProvider(imageUrl),
             fit: BoxFit.cover,
           ),
           boxShadow: [
@@ -669,6 +669,7 @@ class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      backgroundColor: Colors.white,
       child: Column(
         children: [
           Expanded(
@@ -676,27 +677,38 @@ class AppDrawer extends StatelessWidget {
               padding: EdgeInsets.zero,
               children: <Widget>[
                 Container(
-                  padding: const EdgeInsets.fromLTRB(16, 50, 16, 16),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
                   color: const Color(0xFFFFF0F0),
                   child: Column(
                     children: [
                       Row(
                         children: [
-                          const CircleAvatar(
-                            radius: 30,
-                            backgroundImage: NetworkImage('https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1887&auto=format&fit=crop'),
+                          Container(
+                            width: 60,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: const Color(0xFFD32F2F), width: 2),
+                            ),
+                            child: const CircleAvatar(
+                              backgroundImage: CachedNetworkImageProvider('https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1887&auto=format&fit=crop'),
+                            ),
                           ),
+                          // const CircleAvatar(
+                          //   radius: 30,
+                          //   backgroundImage: NetworkImage('https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1887&auto=format&fit=crop'),
+                          // ),
                           const SizedBox(width: 16),
                           const Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Priya Sharma', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold, fontSize: 16)),
-                              Text('ID: 12345', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                              Text('Priya Sharma', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold, fontSize: 18)),
+                              Text('ID: 12345', style: TextStyle(fontSize: 12, color: Colors.black87)),
                             ],
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       ElevatedButton(
                         onPressed: () {
                           Navigator.pop(context);
@@ -714,13 +726,14 @@ class AppDrawer extends StatelessWidget {
                           child: Container(
                             alignment: Alignment.center,
                             height: 40,
-                            child: const Text('Upgrade to Premium', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                            child: const Text('Upgrade to Premium', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white)),
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
+                // const Divider(),
                 ListTile(
                   leading: const Icon(LucideIcons.userCog),
                   title: const Text('Edit Profile'),
@@ -745,7 +758,7 @@ class AppDrawer extends StatelessWidget {
                     Navigator.pushNamed(context, '/help');
                   },
                 ),
-                const Divider(),
+                // const Divider(),  
                 ListTile(
                   leading: const Icon(LucideIcons.logOut, color: Color(0xFFD32F2F)),
                   title: const Text('Logout'),
@@ -802,7 +815,7 @@ class ProfileScreen extends StatelessWidget {
                       backgroundColor: const Color(0xFFD32F2F),
                       child: CircleAvatar(
                         radius: 96,
-                        backgroundImage: NetworkImage(profileImages[0]),
+                        backgroundImage: CachedNetworkImageProvider(profileImages[0]),
                       ),
                     ),
                   ),
@@ -1265,7 +1278,7 @@ class MessageListItem extends StatelessWidget {
       onTap: () => Navigator.pushNamed(context, '/chat'),
       leading: CircleAvatar(
         radius: 28,
-        backgroundImage: NetworkImage(imageUrl),
+        backgroundImage: CachedNetworkImageProvider(imageUrl),
       ),
       title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
       subtitle: Text(message, maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -1338,7 +1351,7 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             CircleAvatar(
               radius: 20,
-              backgroundImage: NetworkImage('https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=1887&auto=format&fit=crop'),
+              backgroundImage: CachedNetworkImageProvider('https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=1887&auto=format&fit=crop'),
             ),
             SizedBox(width: 12),
             Column(
