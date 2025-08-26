@@ -13,6 +13,15 @@ void main() {
   runApp(const MatrimonyApp());
 }
 
+
+class Config {
+  static const String appName = 'Agri Lagna';
+  static const String apiBaseUrl = 'https://api.mycoolapp.com';
+  static const int timeoutSeconds = 30;
+  static const bool isDebugMode = true;
+  static const double headerHeight = 70;
+}
+
 // Main App Widget
 class MatrimonyApp extends StatelessWidget {
   const MatrimonyApp({super.key});
@@ -214,6 +223,7 @@ class SignUpScreen extends StatelessWidget {
         title: const Text('Create Account', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 1,
+        toolbarHeight: Config.headerHeight,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -282,6 +292,7 @@ class OtpScreen extends StatelessWidget {
         title: const Text('Verify Phone Number', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 1,
+        toolbarHeight: Config.headerHeight,
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -344,6 +355,7 @@ class ForgotPasswordScreen extends StatelessWidget {
         title: const Text('Forgot Password', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 1,
+        toolbarHeight: Config.headerHeight,
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -396,6 +408,7 @@ class ChangePasswordScreen extends StatelessWidget {
         title: const Text('Change Password', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 1,
+        toolbarHeight: Config.headerHeight,
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -517,7 +530,8 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: Padding(
-          padding: const EdgeInsets.all(7.0),
+          // padding: const EdgeInsets.all(7.0),
+          padding: EdgeInsets.fromLTRB(12, 7, 2, 7),
           child: GestureDetector(
             onTap: () => mainScreenKey.currentState?.openDrawer(),
             child: Container(
@@ -533,7 +547,7 @@ class HomeScreen extends StatelessWidget {
         ),
         title: const Text(
           'Agri Lagna',
-          style: TextStyle(fontFamily: 'Poppins', color: Color(0xFFD32F2F), fontWeight: FontWeight.bold),
+          style: TextStyle(fontFamily: 'Poppins',fontSize: 24, color: Color(0xFFD32F2F), fontWeight: FontWeight.w900),
         ),
         centerTitle: true,
         actions: [
@@ -559,6 +573,7 @@ class HomeScreen extends StatelessWidget {
         ],
         backgroundColor: Colors.white,
         elevation: 1,
+        toolbarHeight: Config.headerHeight,
       ),
       body: PageView.builder(
         scrollDirection: Axis.vertical,
@@ -1185,6 +1200,7 @@ class EditProfileHubScreen extends StatelessWidget {
         title: const Text('Edit Profile Sections', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 1,
+        toolbarHeight: Config.headerHeight,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -1271,6 +1287,7 @@ class _ManagePhotosScreenState extends State<ManagePhotosScreen> {
         title: const Text('Manage Photos', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 1,
+        toolbarHeight: Config.headerHeight,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -1319,6 +1336,7 @@ class EditBasicDetailsScreen extends StatelessWidget {
         title: const Text('Basic Details', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 1,
+        toolbarHeight: Config.headerHeight,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -1373,6 +1391,7 @@ class MessagesScreen extends StatelessWidget {
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 1,
+        toolbarHeight: Config.headerHeight,
       ),
       body: ListView(
         children: const [
@@ -1510,6 +1529,7 @@ class _ChatScreenState extends State<ChatScreen> {
         ],
         backgroundColor: Colors.white,
         elevation: 1,
+        toolbarHeight: Config.headerHeight,
       ),
       body: Column(
         children: [
@@ -1771,6 +1791,7 @@ class NotificationsScreen extends StatelessWidget {
         title: const Text('Notifications', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 1,
+        toolbarHeight: Config.headerHeight,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -1861,6 +1882,7 @@ class SettingsScreen extends StatelessWidget {
         title: const Text('Settings', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 1,
+        toolbarHeight: Config.headerHeight,
       ),
       body: ListView(
         children: [
@@ -1925,6 +1947,7 @@ class NotificationSettingsScreen extends StatelessWidget {
         title: const Text('Notification Settings', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 1,
+        toolbarHeight: Config.headerHeight,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -2012,6 +2035,7 @@ class HideDeleteProfileScreen extends StatelessWidget {
         title: const Text('Privacy', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 1,
+        toolbarHeight: Config.headerHeight,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -2056,6 +2080,7 @@ class _FilterScreenState extends State<FilterScreen> {
         title: const Text('Filter Matches', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 1,
+        toolbarHeight: Config.headerHeight,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -2161,6 +2186,7 @@ class SearchResultsScreen extends StatelessWidget {
         title: const Text('Filtered Results', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 1,
+        toolbarHeight: Config.headerHeight,
       ),
       body: ListView.builder(
         itemCount: matchProfiles.length,
@@ -2200,6 +2226,7 @@ class HelpScreen extends StatelessWidget {
         title: const Text('Help & Support', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 1,
+        toolbarHeight: Config.headerHeight,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -2331,6 +2358,7 @@ class BoostProfileScreen extends StatelessWidget {
         title: const Text('Boost Profile', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 1,
+        toolbarHeight: Config.headerHeight,
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
